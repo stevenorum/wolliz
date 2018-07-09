@@ -1,0 +1,17 @@
+{
+    "manifest_version": 2,
+    "name": "Wolliz Zillow Helper",
+    "short_name": "Wolliz",
+    "description": "Improves Zillow.",
+    "version": "0.0.1",
+    "minimum_chrome_version": "38",
+    "permissions": [
+        "contextMenus", 
+        "tabs",
+        "devtools"
+    ],
+    "background": {
+        "pages": "background.html",
+        "scripts":["jquery-3.2.1.min.js","main.js"]
+    }
+}
