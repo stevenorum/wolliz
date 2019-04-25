@@ -1,0 +1,69 @@
+{% set this_page = "course/create.html" if this_page is not defined else this_page %}
+{% extends "base.html.jinja" %}
+
+{% block css_block %}
+<link href="{{ static_base }}/static/css/gmaps.css" rel="stylesheet">
+{% endblock %}
+
+{% block js_block %}
+<script src="{{ static_base }}/static/js/course_create.js"></script>
+{% endblock %}
+
+{% block body %}
+<div class="py-5">
+  <header class="align-center">
+    <h2>Create course</h2>
+  </header>
+  <div id="places">
+    Course notes: <input type="text" id="courseNotes" class="notes" size="100" value="{{'' if not course else course.notes}}"><br>
+    General info about the course.<br><br>
+    Course city: <input type="text" id="courseCity" class="address" size="100" value="{{'' if not course else course.city}}"><br>
+    Will be used as the default for any addresses without city/state.<br>
+    <hr/>
+    <input id="addLocation" type="button" value="Add Another Location" onclick="addLocation();" />
+    <hr/>
+    <div id="locations">
+      {% if course %}
+      {% for location in course.locations %}
+      <div class="location" data-index="{{location['index']}}">
+        Location {{location["index"] + 1}}{{" (start)" if location["index"]==0 else ""}}<br/>
+        Address:<input type="text" id="address-{{location['index']}}" class="address" size="100" value="{{location['address']}}"><br>
+        {% if location["index"]==0 %}Include street address, city, state, zip, whatever you have.<br>{% endif %}
+        Notes:<input type="text" id="notes-{{location['index']}}" class="notes" size="100" value="{{location['notes']}}"><br>
+        {% if location["index"]==0 %}Specific location to visit, hashtags to use, whatever.{% endif %}
+        <hr/>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div class="location" data-index="0">
+        Location 1 (start)<br/>
+        Address:<input type="text" id="address-0" class="address" size="100"><br>
+        Include street address, city, state, zip, whatever you have.<br>
+        Notes:<input type="text" id="notes-0" class="notes" size="100"><br>
+        Specific location to visit, hashtags to use, whatever.
+        <hr/>
+      </div>
+      {% endif %}
+    </div>
+    <input id="addLocation" type="button" value="Add Another Location" onclick="addLocation();" />
+    Return to start:
+    <input id="returnToStartCheckbox" type="checkbox"{% if not course or course.locations[0]["end"] %} checked{% endif %}>
+    <hr/>
+    <input id="submitCourse" type="button" value="Create Course" onclick="createCourse();" />
+    <br/>
+    <br/>
+  </div>
+</div>
+<div id="infomessage" class="alert alert-info text-center" role="alert" style="display: none;"></div>
+<div id="errormessage" class="alert alert-danger text-center" role="alert" style="display: none;"></div>
+<div class="py-5 text-center">
+  Some notes:<br>
+  -The first address in the list is the start point.<br>
+  -If 'Return to start' is not checked, the last address in the list is the end point.<br>
+  -If 'Return to start' is checked, the first address is also used as the end point.<br>
+  -All locations other than the start and end will likely be reordered to minimize travel time.<br>
+  -The 'Route ID' that gets assigned to the route after creation is random and uniquely identifies this set of addresses.  You don't really need to think about it other than using it to link to the route.<br>
+  -Make sure to specify the city and state for each address.  If you don't, it's likely that Google will helpfully pick an address hundreds/thousands of miles away from the others, the directions between the two will be massive, and there'll be a database error when the system tries to save the route.  No impact to other stuff but it means that nothing will happen when you click the "Submit" button.
+</div>
+
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html.jinja" %}
+{% block css_block %}
+<link href="{{ static_base }}/static/css/gmaps.css" rel="stylesheet">
+{% endblock %}
+
+{% block js_block %}
+<script src="{{ static_base }}/static/js/course_view.js"></script>
+{% endblock %}
+
+{% block body %}
+<!-- <h2>Distance: {{ distance }}</h2> -->
+<!-- <h3>Time guess: {{ duration }}</h3> -->
+<h2>Course ID: {{ course.course_id }}</h2>
+{% if course.city %}<h3>City: {{ course.city }}</h3>{% endif %}
+{% if course.notes %}<h3>Notes: {{ course.notes }}</h3>{% endif %}
+<input type="button" value="Go from start! (NYI)" onclick="createRoute('{{course.course_id}}');" />
+<br/>
+<input type="button" value="Go from here! (NYI)" onclick="createRouteFromHere('{{course.course_id}}');" /> <span id="currentLocation"></span>
+<hr/>
+<h4><a href="{{base_path}}/course/create?copy_from={{course.course_id}}">Copy to new course</a></h4>
+<hr/>
+{% if routes %}
+<table class="table table-striped table-bordered">
+  <thead>
+    <tr>
+      <th scope="col">Route ID</th>
+      <th scope="col"># of stops</th>
+      <th scope="col">Distance (m)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for route in routes %}
+    <tr>
+      <td><a href="{{base_path}}/route/view?course_id={{route.course_id}}&route_id={{route.route_id}}">{{route.route_id}}</a></td>
+      <td>{{route.num_locations}}</td>
+      <td>{{route.route["distance"]["value"]}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<hr/>
+{% endif %}
+
+<table class="table table-striped table-bordered">
+  <thead>
+    <tr>
+      <th scope="col">S/M/E?</th>
+      <th scope="col">Address</th>
+      <th scope="col">Notes</th>
+      <th scope="col">Hashtag</th>
+      <th scope="col">Visited?</th>
+      <th scope="col">Update</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for location in course.locations %}
+    <tr>
+      <td>{% if location["start"] and location["end"] -%}Start/End{% elif location["start"] %}Start{% elif location["end"] %}End{% else %}Middle{% endif %}</td>
+      <td scope="row"><a href="https://www.google.com/maps/dir//{{location['address']}}" target="_blank">{{ location['address'] }}</a></td>
+      <td>{{ location["notes"] }}</td>
+      <td>
+        {% if location["hashtag"] %}
+        <!-- <span id="hashtag-{{location['id']}}">{{ location["hashtag"] }} <span hidden>#goruckstarcourse @goruckstarcourse</span></span> -->
+        {{ location["hashtag"] }} {% if not location["visited"] %}<input type="button" value="COPY" onclick="toClipboard('{{ location['hashtag'] }} #goruckstarcourse @goruckstarcourse\n');" />{% endif %}
+        {% else %}
+        (none found)
+        {% endif %}
+      </td>
+      <td>{{ "yes" if location["visited"] else "NO" }}</td>
+      <td>{% if location["visited"] -%}
+        <input type="button" value="UNMARK" onclick="updateLocationState('{{course.course_id}}','{{location["address"]}}',false);" />
+        {%- else -%}
+        <input type="button" value="MARK VISITED" onclick="updateLocationState('{{course.course_id}}','{{location["address"]}}',true);" />
+        {%- endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- https://developers.google.com/maps/documentation/javascript/tutorial -->
+<div class="map" id="map"></div>
+<!-- <div class="directions" id="directions"></div> -->
+<script>
+  var map;
+  function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: {lat: {{course.gps_center["lat"]}}, lng: {{course.gps_center["lng"]}}},
+      zoom: 9
+  });
+  var markers = [];
+  {% for location in course.locations %}
+  {% if "coordinates" in location %}
+  markers.push(new google.maps.Marker({
+    position: {lat: {{location["coordinates"]["lat"]}}, lng: {{location["coordinates"]["lng"]}}},
+    map: map
+  }));
+  {% endif %}
+  {% endfor %}
+  }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GMAPS_API_KEY }}&callback=initMap" async defer></script>
+
+{% endblock %}
