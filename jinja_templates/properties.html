@@ -6,15 +6,10 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
+    <link href="{{ static_base }}/static/css/report.css" rel="stylesheet">
     <link href="{{ static_base }}/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ static_base }}/static/css/gmaps.css" rel="stylesheet">
     <link href="{{ static_base }}/static/css/jquery-ui.css" rel="stylesheet">
-    <script>
-      var BASE_PATH = "{{base_path}}";
-      var STATIC_BASE = "{{static_base}}";
-      var ASYNC = {{"true" if async else "false"}};
-      var PROPERTIES = {{ properties_json }};
-    </script>
     <script src="{{ static_base }}/static/js/jquery.min.js"></script>
     <script src="{{ static_base }}/static/js/bootstrap.min.js"></script>
     <script src="{{ static_base }}/static/js/gpx.js"></script>
@@ -22,6 +17,13 @@
     <script src="{{ static_base }}/static/js/jquery.tablesorter.js"></script>
     <script src="{{ static_base }}/static/js/map-stuff.js"></script>
     <script src="{{ static_base }}/static/js/popper.min.js"></script>
+
+    <script>
+      var BASE_PATH = "{{base_path}}";
+      var STATIC_BASE = "{{static_base}}";
+      var ASYNC = {{"true" if async else "false"}};
+      var PROPERTIES = {{ properties_json }};
+    </script>
     <script src="{{ static_base }}/static/js/report.js"></script>
 
     <link href="https://fonts.googleapis.com/css?family=Cousine" rel="stylesheet">
@@ -55,18 +57,14 @@
           <div id="ppa-slider-range" style="width:50%; float:right"></div>
         </div>
           <span style="width:30%"><label for="matchingCount">Number found: </label><input type="text" id="matchingCount" readonly style="border:0; color:#f6931f; font-weight:bold;"></span>
+          <br>
+          <label for="imagesSwitch">Show images:</label>
+          <label class="switch" id="imagesSwitch">
+            <input type="checkbox">
+            <span class="slider round"></span>
+          </label>
       </p>
 
-
-      <!-- <p> -->
-      <!--   <span style="width:30%"><label for="price-amount">Price range:</label><input type="text" id="price-amount" readonly style="border:0; color:#f6931f; font-weight:bold;"></span> -->
-      <!--   <div id="price-slider-range" style="width:50%;float:none"></div> -->
-      <!-- </p> -->
-      <!-- <br> -->
-      <!-- <p> -->
-      <!--   <span style="float:left"><label for="size-amount">Size range:</label><input type="text" id="size-amount" readonly style="border:0; color:#f6931f; font-weight:bold;"></span> -->
-      <!--   <div id="size-slider-range" style="width:50%;"></div> -->
-      <!-- </p> -->
 
       <div class="py-5 text-center">
         <h2>Properties:</h2>
@@ -84,22 +82,6 @@
             </tr>
           </thead>
           <tbody id="propertiesTableBody">
-            {% for prop in properties %}
-            <tr data-header="0" data-price="{{ prop['price']}}" data-distance="{{ prop['mcv_distance_km']}}" data-size="{{ prop['lotSize_acres'] }}" data-ppa="{{ prop['price_per_acre'] }}">
-              <td>{{ prop["streetAddress"] }}, {{ prop["city"] }}, {{ prop["zipcode"] }}</td>
-              <td>${{ prop["price"]}}</td>
-              <td>{{ prop["lotSize_acres"] | round}} acres</td>
-              <td>${{ prop["price_per_acre"] | round}}/acre</td>
-              <td>{{ prop["homeType"]}}</td>
-              <td>{{ prop["mcv_distance_km"] | round}} km</td>
-              <td scope="row"><a href="{{prop['zillow_url']}}">Zillow</a></td>
-              <td scope="row">
-                <a href="https://www.google.com/maps/dir/{{prop['streetAddress']}}, {{prop['city']}}, {{prop['state']}}/MCV+Campus+Virginia+Commonwealth+University,+Virginia+Commonwealth+University+Richmond,,+Virginia,+Richmond,+VA+23284">[MCV]</a>
-                <a href="https://www.google.com/maps/dir/{{prop['streetAddress']}}, {{prop['city']}}, {{prop['state']}}/Amazon+Web+Services,+Worldgate+Drive,+Herndon,+VA">[IAD]</a>
-              </td>
-              <td scope="row"><image id="{{prop['zpid']}}-img" onclick="javascript:loadImage('{{prop['zpid']}}-img');" data-url="{{prop['photo']}}" src="{{ static_base }}/static/placeholder_house.png" width="200"/></td>
-            </tr>
-            {% endfor %}
           </tbody>
         </table>
       </div>

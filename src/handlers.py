@@ -30,13 +30,13 @@ PROPERTIES = _load_properties()
 @register_path("HTML", r"^/properties.html")
 @returns_html("properties.html")
 def properties_page_synchronous(event, *args, **kwargs):
-    return {"properties":[], "async":False, "properties_json":json.dumps(PROPERTIES)}
+    return {"async":False, "properties_json":json.dumps(PROPERTIES, indent=2, sort_keys=True)}
 
 @register_path("HTML", r"^/properties_async.html")
 @returns_html("properties.html")
 def properties_page_asynchronous(event, *args, **kwargs):
     # return {"properties":[], "async":True, "properties_json":json.dumps(PROPERTIES)}
-    return {"properties":[], "async":True, "properties_json":"{}"}
+    return {"async":True, "properties_json":"{}"}
 
 @register_path("API", r"^/properties.json")
 @returns_json

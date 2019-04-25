@@ -62,12 +62,25 @@ function loadImage(nodeID) {
     imageNode.onclick = "";
 }
 
+function stringifyPrice(price) {
+    price = Math.round(price).toString();
+    if (price.length > 3) {
+        price = price.substring(0, price.length-3) + "," + price.substring(price.length-3, price.length);
+    }
+    if (price.length > 7) {
+        price = price.substring(0, price.length-7) + "," + price.substring(price.length-7, price.length);
+    }
+    return price;
+}
+
 function getRowHTML(prop) {
+    var price = stringifyPrice(prop["price"]);
+    var ppa = stringifyPrice(prop["price_per_acre"]);
     return `<tr data-header="0" data-price="${ prop['price']}" data-distance="${ prop['mcv_distance_km']}" data-size="${ prop['lotSize_acres'] }" data-ppa="${ prop['price_per_acre'] }">
               <td>${ prop["streetAddress"] }, ${ prop["city"] }, ${ prop["zipcode"] }</td>
-              <td>$${ prop["price"] }</td>
+              <td>$${ price }</td>
               <td>${ Math.round(prop["lotSize_acres"]) } a</td>
-              <td>$${ Math.round(prop["price_per_acre"]) }/a</td>
+              <td>$${ ppa }/a</td>
               <td>${ prop["homeType"].replace("SINGLE_FAMILY","HOUSE").replace("MANUFACTURED","HOUSE").replace("MULTI_FAMILY","HOUSE").replace("LOT","LAND") }</td>
               <td>${ Math.round(prop["mcv_distance_km"]) } km</td>
               <td scope="row">
@@ -75,7 +88,7 @@ function getRowHTML(prop) {
                 <a href="https://www.google.com/maps/dir/${prop['streetAddress']}, ${prop['city']}, ${prop['state']}/MCV+Campus+Virginia+Commonwealth+University,+Virginia+Commonwealth+University+Richmond,,+Virginia,+Richmond,+VA+23284">[MCV]</a>
                 <a href="https://www.google.com/maps/dir/${prop['streetAddress']}, ${prop['city']}, ${prop['state']}/Amazon+Web+Services,+Worldgate+Drive,+Herndon,+VA">[IAD]</a>
               </td>
-              <td scope="row"><image id="${prop['zpid']}-img" onclick="javascript:loadImage('${prop['zpid']}-img');" data-url="${prop['photo']}" src="${STATIC_BASE}/static/placeholder_house.png" width="400"/></td>
+              <td scope="row"><image class="propertyImage" id="${prop['zpid']}-img" onclick="javascript:loadImage('${prop['zpid']}-img');" data-url="${prop['photo']}" src="${STATIC_BASE}/static/placeholder_house.png" width="400" style="display:none"/></td>
             </tr>
 `;
 }
@@ -111,10 +124,25 @@ function loadPropertiesRemote() {
     xhr.send();
 }
 
+function configureImagesSwitch() {
+    var imagesSwitch = document.getElementById("imagesSwitch");
+    imagesSwitch.addEventListener('change', function (event) {
+        var checked = event.srcElement.checked;
+        for (var img of $(".propertyImage")) {
+            if (checked) {
+                img.style.display="";
+            } else {
+                img.style.display="none";
+            }
+        }
+    });
+}
+
 $( function() {
     if (ASYNC) {
         loadPropertiesRemote();
     } else {
         configureTable(PROPERTIES);
     };
+    configureImagesSwitch();
 } );
